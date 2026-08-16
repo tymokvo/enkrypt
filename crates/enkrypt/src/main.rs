@@ -21,16 +21,22 @@ enum Mode {
 }
 
 fn main() -> Result<(), String> {
+    println!("starting");
+
     let args = Args::parse();
+    dbg!("args parsed");
+
     let key = {
         // NOTE: This should be swapped for a key derivation function. There is
         // no salt or multi-round hashing with SHA256, it's just convenient.
         sha2::Sha256::digest(args.key.as_bytes())
     };
+    dbg!("key digested");
     let cipher = XChaCha20Poly1305::new(&key);
 
     match args.mode {
         Mode::Encrypt { cleartext } => {
+            println!("encrypting");
             let nonce = XNonce::generate();
 
             let cipherbytes = cipher
@@ -47,6 +53,8 @@ fn main() -> Result<(), String> {
             Ok(())
         }
         Mode::Decrypt { ciphertext } => {
+            println!("decrypting again");
+
             let bytes = b64.decode(&ciphertext).map_err(|e| format!("{e}"))?;
 
             let (noncebytes, cipherbytes) = bytes.split_at(24);
