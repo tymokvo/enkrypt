@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 chacha20poly1305 = { version = "0.11.0", features = ["bytes"] }
 clap = { version = "4.6.6", features = ["derive"] }
+sha2 = "0.11.0"
