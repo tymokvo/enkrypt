@@ -1,6 +1,6 @@
-use aes_gcm::{
-    Aes256Gcm, Nonce,
-    aead::{Aead, Generate, Key, KeyInit},
+use chacha20poly1305::{
+    XChaCha20Poly1305, XNonce,
+    aead::{Aead, AeadCore, Generate, Key, KeyInit},
 };
 use clap::Parser;
 
@@ -12,28 +12,18 @@ struct Args {
 
 fn main() -> Result<(), String> {
     let args = Args::parse();
-    dbg!(args.key);
-    dbg!(args.payload);
-
-    let key = Key::<Aes256Gcm>::generate();
-
-    let nonce = Nonce::<_>::generate();
-
-    let cipher = Aes256Gcm::new(&key);
-
-    let bytes = "hello".bytes().collect::<Vec<_>>();
-
+    let key = Key::<XChaCha20Poly1305>::generate();
+    let cipher = XChaCha20Poly1305::new(&key);
+    let nonce = XNonce::generate();
     let ciphertext = cipher
-        .encrypt(&nonce, bytes.as_slice())
+        .encrypt(&nonce, b"plaintext message".as_ref())
         .map_err(|e| format!("{e}"))?;
-
     let plaintext = cipher
         .decrypt(&nonce, ciphertext.as_ref())
         .map_err(|e| format!("{e}"))?;
 
-    dbg!(String::from_utf8(plaintext));
     dbg!(ciphertext);
-    dbg!(key);
+    dbg!(plaintext);
 
     Ok(())
 }
